@@ -939,6 +939,10 @@ issues for {{product_name_short}}.
 </tr>
 <tr>
   <td><a href="/workflows/docs/">{{workflows_name}}</a></td>
+  <td><a href="/config-connector/docs/reference/resource-docs/workflows/workflowexecution.md">WorkflowExecutions</a></td>
+</tr>
+<tr>
+  <td><a href="/workflows/docs/">{{workflows_name}}</a></td>
   <td><a href="/config-connector/docs/reference/resource-docs/workflows/workflowsworkflow.md">WorkflowsWorkflow</a></td>
 </tr>
 <tr>
