@@ -2,9 +2,8 @@ main:
   params: [input]
   steps:
     - getLocation:
-        call: sys.get_env
+        call: sys.sleep
         args:
-          name: GOOGLE_CLOUD_LOCATION
-        result: location
+          seconds: 60
     - returnOutput:
-        return: '${location}'
+        return: 'Done'
