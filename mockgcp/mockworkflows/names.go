@@ -28,6 +28,39 @@ import (
 	"github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp/common/projects"
 )
 
+type executionName struct {
+	Project   *projects.ProjectData
+	Location  string
+	Workflow  string
+	Execution string
+}
+
+func (n *executionName) String() string {
+	return fmt.Sprintf("projects/%s/locations/%s/workflows/%s/executions/%s", n.Project.ID, n.Location, n.Workflow, n.Execution)
+}
+
+func (s *MockService) parseExecutionName(name string) (*executionName, error) {
+	tokens := strings.Split(name, "/")
+
+	if len(tokens) == 8 && tokens[0] == "projects" && tokens[2] == "locations" && tokens[4] == "workflows" && tokens[6] == "executions" {
+		project, err := s.Projects.GetProjectByID(tokens[1])
+		if err != nil {
+			return nil, err
+		}
+
+		name := &executionName{
+			Project:   project,
+			Location:  tokens[3],
+			Workflow:  tokens[5],
+			Execution: tokens[7],
+		}
+
+		return name, nil
+	}
+
+	return nil, status.Errorf(codes.InvalidArgument, "name %q is not valid", name)
+}
+
 type workflowName struct {
 	Project  *projects.ProjectData
 	Location string
