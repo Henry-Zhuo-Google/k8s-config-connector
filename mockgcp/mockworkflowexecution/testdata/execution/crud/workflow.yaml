@@ -1,9 +1,0 @@
-main:
-  params: [input]
-  steps:
-    - getLocation:
-        call: sys.sleep
-        args:
-          seconds: 60
-    - returnOutput:
-        return: 'Done'
