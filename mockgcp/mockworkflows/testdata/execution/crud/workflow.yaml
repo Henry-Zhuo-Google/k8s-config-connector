@@ -9,6 +9,6 @@ main:
     - sleepToBeCancelled:
         call: sys.sleep
         args:
-          seconds: 3
+          seconds: 60
     - returnOutput:
         return: '${location}'
