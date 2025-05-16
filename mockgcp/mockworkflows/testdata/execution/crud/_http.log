@@ -16,6 +16,16 @@ X-Xss-Protection: 0
 {
   "error": {
     "code": 404,
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.DebugInfo",
+        "detail": "not found: resource not found"
+      },
+      {
+        "@type": "type.googleapis.com/google.rpc.ResourceInfo",
+        "resourceName": "projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}"
+      }
+    ],
     "message": "Resource 'projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}' was not found",
     "status": "NOT_FOUND"
   }
@@ -44,6 +54,7 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
+  "done": false,
   "metadata": {
     "@type": "type.googleapis.com/google.cloud.workflows.v1.OperationMetadata",
     "apiVersion": "v1",
@@ -144,7 +155,9 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
+  "argument": "null",
+  "createTime": "2024-04-01T12:34:56.123456Z",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "ACTIVE",
   "status": {},
@@ -153,7 +166,7 @@ X-Xss-Protection: 0
 
 ---
 
-GET https://workflowexecutions.googleapis.com/v1/projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/123456789?alt=json
+GET https://workflowexecutions.googleapis.com/v1/projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/72479c3b-c5cf-4c41-84b5-b8330204259d?alt=json
 Accept: application/json
 Authorization: (removed)
 Connection: keep-alive
@@ -169,10 +182,46 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
+  "argument": "null",
+  "createTime": "2024-04-01T12:34:56.123456Z",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
+  "startTime": "2024-04-01T12:34:56.123456Z",
+  "state": "ACTIVE",
+  "status": {
+    "currentSteps": [
+      {
+        "routine": "routine-normalized",
+        "step": "step-normalized"
+      }
+    ]
+  },
+  "workflowRevisionId": "revision-id-placeholder"
+}
+
+---
+
+GET https://workflowexecutions.googleapis.com/v1/projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/72479c3b-c5cf-4c41-84b5-b8330204259d?alt=json
+Accept: application/json
+Authorization: (removed)
+Connection: keep-alive
+
+200 OK
+Content-Type: application/json; charset=UTF-8
+Server: ESF
+Vary: Origin
+Vary: X-Origin
+Vary: Referer
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 0
+
+{
+  "argument": "null",
+  "createTime": "2024-04-01T12:34:56.123456Z",
   "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
-  "name": "projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
-  "result": "\"Hello initial value\"",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
+  "result": "\"us-central1\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
@@ -206,10 +255,20 @@ X-Xss-Protection: 0
 {
   "executions": [
     {
-      "name": "projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
+      "createTime": "2024-04-01T12:34:56.123456Z",
+      "duration": "0.100000000s",
+      "endTime": "2024-04-01T12:34:56.123456Z",
+      "name": "projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
       "startTime": "2024-04-01T12:34:56.123456Z",
-      "state": "ACTIVE",
-      "status": {},
+      "state": "SUCCEEDED",
+      "status": {
+        "currentSteps": [
+          {
+            "routine": "routine-normalized",
+            "step": "step-normalized"
+          }
+        ]
+      },
       "workflowRevisionId": "revision-id-placeholder"
     }
   ]
@@ -217,7 +276,7 @@ X-Xss-Protection: 0
 
 ---
 
-GET https://workflowexecutions.googleapis.com/v1/projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/123456789?alt=json
+GET https://workflowexecutions.googleapis.com/v1/projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/72479c3b-c5cf-4c41-84b5-b8330204259d?alt=json
 Accept: application/json
 Authorization: (removed)
 Connection: keep-alive
@@ -233,10 +292,12 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
+  "argument": "null",
+  "createTime": "2024-04-01T12:34:56.123456Z",
   "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
-  "name": "projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
-  "result": "\"Hello initial value\"",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
+  "result": "\"us-central1\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
@@ -270,10 +331,20 @@ X-Xss-Protection: 0
 {
   "executions": [
     {
-      "name": "projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
+      "createTime": "2024-04-01T12:34:56.123456Z",
+      "duration": "0.100000000s",
+      "endTime": "2024-04-01T12:34:56.123456Z",
+      "name": "projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
       "startTime": "2024-04-01T12:34:56.123456Z",
-      "state": "ACTIVE",
-      "status": {},
+      "state": "SUCCEEDED",
+      "status": {
+        "currentSteps": [
+          {
+            "routine": "routine-normalized",
+            "step": "step-normalized"
+          }
+        ]
+      },
       "workflowRevisionId": "revision-id-placeholder"
     }
   ]
@@ -281,7 +352,7 @@ X-Xss-Protection: 0
 
 ---
 
-POST https://workflowexecutions.googleapis.com/v1/projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/123456789:cancel?alt=json
+POST https://workflowexecutions.googleapis.com/v1/projects/${projectNumber}/locations/us-central1/workflows/test-${uniqueId}/executions/72479c3b-c5cf-4c41-84b5-b8330204259d:cancel?alt=json
 Accept: application/json
 Authorization: (removed)
 Connection: keep-alive
@@ -289,7 +360,7 @@ Content-Type: application/json
 
 {}
 
-200 OK
+400 Bad Request
 Content-Type: application/json; charset=UTF-8
 Server: ESF
 Vary: Origin
@@ -300,11 +371,17 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/test-${uniqueId}/executions/${executionId}",
-  "startTime": "2024-04-01T12:34:56.123456Z",
-  "state": "CANCELLED",
-  "status": {},
-  "workflowRevisionId": "revision-id-placeholder"
+  "error": {
+    "code": 400,
+    "details": [
+      {
+        "@type": "type.googleapis.com/google.rpc.DebugInfo",
+        "detail": "cancelling execution in state SUCCEEDED is not allowed"
+      }
+    ],
+    "message": "cancelling execution in state SUCCEEDED is not allowed",
+    "status": "FAILED_PRECONDITION"
+  }
 }
 
 ---
@@ -325,6 +402,7 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
+  "done": false,
   "metadata": {
     "@type": "type.googleapis.com/google.cloud.workflows.v1.OperationMetadata",
     "apiVersion": "v1",
