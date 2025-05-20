@@ -20,8 +20,6 @@ package mockworkflows
 
 import (
 	"context"
-	// "fmt"
-	// "strings"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -30,7 +28,6 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	// "github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp/common/projects"
 	pb "cloud.google.com/go/workflows/executions/apiv1/executionspb"
 	"github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp/pkg/storage"
 )
@@ -76,8 +73,9 @@ func (s *WorkflowExecutionsV1) GetExecution(ctx context.Context, req *pb.GetExec
 
 	// Pretend execution finished
 	now := time.Now()
-	obj.Duration = durationpb.New(100 * time.Millisecond)
 	obj.EndTime = timestamppb.New(now)
+	duration := now.Sub(obj.StartTime.AsTime())
+	obj.Duration = durationpb.New(duration)
 	obj.Result = "\"Hello initial value\""
 	obj.State = pb.Execution_SUCCEEDED
 	obj.Status = &pb.Execution_Status{
