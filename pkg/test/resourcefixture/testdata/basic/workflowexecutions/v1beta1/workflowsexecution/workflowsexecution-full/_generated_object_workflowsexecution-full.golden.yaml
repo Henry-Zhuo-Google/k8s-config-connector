@@ -1,4 +1,4 @@
-apiVersion: workflowexecutions.cnrm.cloud.google.com/v1alpha1
+apiVersion: workflowexecutions.cnrm.cloud.google.com/v1beta1
 kind: WorkflowsExecution
 metadata:
   finalizers:
@@ -7,10 +7,14 @@ metadata:
   generation: 2
   labels:
     cnrm-test: "true"
-  name: execution-minimal-${uniqueId}
+  name: execution-full-${uniqueId}
   namespace: ${uniqueId}
 spec:
-  argument: '{"firstName":"FIRST","lastName":"LAST"}'
+  argument: '{"firstName":"FIRST2","lastName":"LAST2"}'
+  callLogLevel: LOG_ALL_CALLS
+  labels:
+    action: update
+    env: test
   location: us-central1
   projectRef:
     external: ${projectId}
@@ -23,10 +27,5 @@ status:
     reason: UpToDate
     status: "True"
     type: Ready
-  externalRef: projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2
+  externalRef: projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}
   observedGeneration: 2
-  observedState:
-    startTime: "2025-03-19T02:14:46.706687577Z"
-    state: ACTIVE
-    status: {}
-    workflowRevisionID: 000001-383

@@ -29,12 +29,12 @@ User-Agent: kcc/${kccVersion} (+https://github.com/GoogleCloudPlatform/k8s-confi
 X-Goog-Request-Params: parent=projects%2F${projectId}%2Flocations%2Fus-central1
 
 {
-  "description": "Example workflow",
+  "description": "Example workflow using arguments",
   "labels": {
     "env": "test"
   },
   "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}",
-  "sourceContents": "main:\n  params: [input]\n  steps:\n    - getLocation:\n        call: sys.get_env\n        args:\n          name: GOOGLE_CLOUD_LOCATION\n        result: location\n    - returnOutput:\n        return: '${location}'"
+  "sourceContents": "main:\n  params: [input]\n  steps:\n    - returnOutput:\n        return: ${\"Hello, \" + input.firstName + \" \" + input.lastName}"
 }
 
 200 OK
@@ -48,7 +48,6 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
-  "done": false,
   "metadata": {
     "@type": "type.googleapis.com/google.cloud.workflows.v1.OperationMetadata",
     "apiVersion": "v1",
@@ -90,7 +89,7 @@ X-Xss-Protection: 0
   "response": {
     "@type": "type.googleapis.com/google.cloud.workflows.v1.Workflow",
     "createTime": "2024-04-01T12:34:56.123456Z",
-    "description": "Example workflow",
+    "description": "Example workflow using arguments",
     "labels": {
       "env": "test"
     },
@@ -98,7 +97,7 @@ X-Xss-Protection: 0
     "revisionCreateTime": "2024-04-01T12:34:56.123456Z",
     "revisionId": "revision-id-placeholder",
     "serviceAccount": "projects/${projectId}/serviceAccounts/${projectNumber}-compute@developer.gserviceaccount.com",
-    "sourceContents": "main:\n  params: [input]\n  steps:\n    - getLocation:\n        call: sys.get_env\n        args:\n          name: GOOGLE_CLOUD_LOCATION\n        result: location\n    - returnOutput:\n        return: '${location}'",
+    "sourceContents": "main:\n  params: [input]\n  steps:\n    - returnOutput:\n        return: ${\"Hello, \" + input.firstName + \" \" + input.lastName}",
     "state": "ACTIVE",
     "updateTime": "2024-04-01T12:34:56.123456Z"
   }
@@ -110,6 +109,8 @@ GRPC /google.cloud.workflows.executions.v1.Executions/CreateExecution
 
 {
   "execution": {
+    "argument": "{\"firstName\":\"FIRST\",\"lastName\":\"LAST\"}",
+    "callLogLevel": "LOG_ERRORS_ONLY",
     "labels": {
       "cnrm-test": "true",
       "managed-by-cnrm": "true"
@@ -122,17 +123,17 @@ GRPC /google.cloud.workflows.executions.v1.Executions/CreateExecution
 OK
 
 {
-  "argument": "null",
+  "argument": "{\"firstName\":\"FIRST\",\"lastName\":\"LAST\"}",
+  "callLogLevel": "LOG_ERRORS_ONLY",
   "labels": {
     "cnrm-test": "true",
-    "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "ACTIVE",
   "status": {},
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -140,33 +141,33 @@ OK
 GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}"
 }
 
 OK
 
 {
-  "argument": "null",
-  "duration": "0.064197426s",
+  "argument": "{\"firstName\":\"FIRST\",\"lastName\":\"LAST\"}",
+  "callLogLevel": "LOG_ERRORS_ONLY",
+  "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
   "labels": {
     "cnrm-test": "true",
-    "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
-  "result": "\"us-central1\"",
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
+  "result": "\"Result placeholder\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
     "currentSteps": [
       {
-        "routine": "main",
-        "step": "returnOutput"
+        "routine": "routine-normalized",
+        "step": "step-normalized"
       }
     ]
   },
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -174,33 +175,33 @@ OK
 GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}"
 }
 
 OK
 
 {
-  "argument": "null",
-  "duration": "0.064197426s",
+  "argument": "{\"firstName\":\"FIRST\",\"lastName\":\"LAST\"}",
+  "callLogLevel": "LOG_ERRORS_ONLY",
+  "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
   "labels": {
     "cnrm-test": "true",
-    "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
-  "result": "\"us-central1\"",
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
+  "result": "\"Result placeholder\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
     "currentSteps": [
       {
-        "routine": "main",
-        "step": "returnOutput"
+        "routine": "routine-normalized",
+        "step": "step-normalized"
       }
     ]
   },
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -208,33 +209,33 @@ OK
 GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}"
 }
 
 OK
 
 {
-  "argument": "null",
-  "duration": "0.064197426s",
+  "argument": "{\"firstName\":\"FIRST\",\"lastName\":\"LAST\"}",
+  "callLogLevel": "LOG_ERRORS_ONLY",
+  "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
   "labels": {
     "cnrm-test": "true",
-    "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
-  "result": "\"us-central1\"",
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
+  "result": "\"Result placeholder\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
     "currentSteps": [
       {
-        "routine": "main",
-        "step": "returnOutput"
+        "routine": "routine-normalized",
+        "step": "step-normalized"
       }
     ]
   },
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -242,33 +243,33 @@ OK
 GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}"
 }
 
 OK
 
 {
-  "argument": "null",
-  "duration": "0.064197426s",
+  "argument": "{\"firstName\":\"FIRST\",\"lastName\":\"LAST\"}",
+  "callLogLevel": "LOG_ERRORS_ONLY",
+  "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
   "labels": {
     "cnrm-test": "true",
-    "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
-  "result": "\"us-central1\"",
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
+  "result": "\"Result placeholder\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
     "currentSteps": [
       {
-        "routine": "main",
-        "step": "returnOutput"
+        "routine": "routine-normalized",
+        "step": "step-normalized"
       }
     ]
   },
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -290,7 +291,7 @@ X-Xss-Protection: 0
 
 {
   "createTime": "2024-04-01T12:34:56.123456Z",
-  "description": "Example workflow",
+  "description": "Example workflow using arguments",
   "labels": {
     "env": "test"
   },
@@ -298,7 +299,7 @@ X-Xss-Protection: 0
   "revisionCreateTime": "2024-04-01T12:34:56.123456Z",
   "revisionId": "revision-id-placeholder",
   "serviceAccount": "projects/${projectId}/serviceAccounts/${projectNumber}-compute@developer.gserviceaccount.com",
-  "sourceContents": "main:\n  params: [input]\n  steps:\n    - getLocation:\n        call: sys.get_env\n        args:\n          name: GOOGLE_CLOUD_LOCATION\n        result: location\n    - returnOutput:\n        return: '${location}'",
+  "sourceContents": "main:\n  params: [input]\n  steps:\n    - returnOutput:\n        return: ${\"Hello, \" + input.firstName + \" \" + input.lastName}",
   "state": 1,
   "updateTime": "2024-04-01T12:34:56.123456Z"
 }
@@ -321,7 +322,6 @@ X-Frame-Options: SAMEORIGIN
 X-Xss-Protection: 0
 
 {
-  "done": false,
   "metadata": {
     "@type": "type.googleapis.com/google.cloud.workflows.v1.OperationMetadata",
     "apiVersion": "v1",

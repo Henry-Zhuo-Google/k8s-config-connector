@@ -16,39 +16,37 @@
 // proto.service: google.cloud.workflows.executions.v1.Executions
 // proto.message: google.cloud.workflows.executions.v1.Execution
 
-package mockworkflowexecution
+package mockworkflows
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp/common/projects"
-	pb "github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp/generated/mockgcp/cloud/workflows/executions/v1"
+	pb "cloud.google.com/go/workflows/executions/apiv1/executionspb"
 	"github.com/GoogleCloudPlatform/k8s-config-connector/mockgcp/pkg/storage"
 )
 
-type workflowExecutionService struct {
+type WorkflowExecutionsV1 struct {
 	*MockService
 	pb.UnimplementedExecutionsServer
 }
 
-func (s *workflowExecutionService) CreateExecution(ctx context.Context, req *pb.CreateExecutionRequest) (*pb.Execution, error) {
+func (s *WorkflowExecutionsV1) CreateExecution(ctx context.Context, req *pb.CreateExecutionRequest) (*pb.Execution, error) {
 	fqn := req.GetParent() + "/executions/123456789"
 	now := time.Now()
 	obj := proto.Clone(req.GetExecution()).(*pb.Execution)
 	obj.Name = fqn
 	obj.StartTime = timestamppb.New(now)
-	obj.EndTime = timestamppb.New(now.Add(2 * time.Minute))
-	obj.State = pb.Execution_SUCCEEDED
+	// EndTime not to be returned on Create
+	obj.State = pb.Execution_ACTIVE
 	obj.WorkflowRevisionId = "000001-609"
-	obj.Result = "us-central1"
+	// Result not to be returned on Create
 	obj.Status = &pb.Execution_Status{}
 	if err := s.storage.Create(ctx, fqn, obj); err != nil {
 		return nil, err
@@ -57,7 +55,7 @@ func (s *workflowExecutionService) CreateExecution(ctx context.Context, req *pb.
 	return obj, nil
 }
 
-func (s *workflowExecutionService) GetExecution(ctx context.Context, req *pb.GetExecutionRequest) (*pb.Execution, error) {
+func (s *WorkflowExecutionsV1) GetExecution(ctx context.Context, req *pb.GetExecutionRequest) (*pb.Execution, error) {
 	name, err := s.parseExecutionName(req.GetName())
 	if err != nil {
 		return nil, err
@@ -73,10 +71,26 @@ func (s *workflowExecutionService) GetExecution(ctx context.Context, req *pb.Get
 		return nil, err
 	}
 
+	// Pretend execution finished
+	now := time.Now()
+	obj.EndTime = timestamppb.New(now)
+	duration := now.Sub(obj.StartTime.AsTime())
+	obj.Duration = durationpb.New(duration)
+	obj.Result = "\"Result placeholder\""
+	obj.State = pb.Execution_SUCCEEDED
+	obj.Status = &pb.Execution_Status{
+		CurrentSteps: []*pb.Execution_Status_Step{
+			&pb.Execution_Status_Step{
+				Routine: "main",
+				Step:    "returnOutput",
+			},
+		},
+	}
+
 	return obj, nil
 }
 
-func (s *workflowExecutionService) ListExecutions(ctx context.Context, req *pb.ListExecutionsRequest) (*pb.ListExecutionsResponse, error) {
+func (s *WorkflowExecutionsV1) ListExecutions(ctx context.Context, req *pb.ListExecutionsRequest) (*pb.ListExecutionsResponse, error) {
 	findPrefix := req.GetParent()
 
 	response := &pb.ListExecutionsResponse{}
@@ -92,7 +106,7 @@ func (s *workflowExecutionService) ListExecutions(ctx context.Context, req *pb.L
 	return response, nil
 }
 
-func (s *workflowExecutionService) CancelExecution(ctx context.Context, req *pb.CancelExecutionRequest) (*pb.Execution, error) {
+func (s *WorkflowExecutionsV1) CancelExecution(ctx context.Context, req *pb.CancelExecutionRequest) (*pb.Execution, error) {
 	name, err := s.parseExecutionName(req.Name)
 	if err != nil {
 		return nil, err
@@ -108,37 +122,4 @@ func (s *workflowExecutionService) CancelExecution(ctx context.Context, req *pb.
 		return nil, err
 	}
 	return obj, nil
-}
-
-type executionName struct {
-	Project   *projects.ProjectData
-	Location  string
-	Workflow  string
-	Execution string
-}
-
-func (n *executionName) String() string {
-	return fmt.Sprintf("projects/%s/locations/%s/workflows/%s/executions/%s", n.Project.ID, n.Location, n.Workflow, n.Execution)
-}
-
-func (s *MockService) parseExecutionName(name string) (*executionName, error) {
-	tokens := strings.Split(name, "/")
-
-	if len(tokens) == 8 && tokens[0] == "projects" && tokens[2] == "locations" && tokens[4] == "workflows" && tokens[6] == "executions" {
-		project, err := s.Projects.GetProjectByID(tokens[1])
-		if err != nil {
-			return nil, err
-		}
-
-		name := &executionName{
-			Project:   project,
-			Location:  tokens[3],
-			Workflow:  tokens[5],
-			Execution: tokens[7],
-		}
-
-		return name, nil
-	}
-
-	return nil, status.Errorf(codes.InvalidArgument, "name %q is not valid", name)
 }
