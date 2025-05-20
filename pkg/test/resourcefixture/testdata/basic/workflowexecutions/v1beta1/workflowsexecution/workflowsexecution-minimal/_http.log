@@ -128,11 +128,11 @@ OK
     "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "ACTIVE",
   "status": {},
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -140,33 +140,33 @@ OK
 GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}"
 }
 
 OK
 
 {
   "argument": "null",
-  "duration": "0.064197426s",
+  "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
   "labels": {
     "cnrm-test": "true",
     "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
   "result": "\"us-central1\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
     "currentSteps": [
       {
-        "routine": "main",
-        "step": "returnOutput"
+        "routine": "routine-normalized",
+        "step": "step-normalized"
       }
     ]
   },
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -174,33 +174,33 @@ OK
 GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}"
 }
 
 OK
 
 {
   "argument": "null",
-  "duration": "0.064197426s",
+  "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
   "labels": {
     "cnrm-test": "true",
     "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
   "result": "\"us-central1\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
     "currentSteps": [
       {
-        "routine": "main",
-        "step": "returnOutput"
+        "routine": "routine-normalized",
+        "step": "step-normalized"
       }
     ]
   },
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
@@ -208,67 +208,33 @@ OK
 GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
 
 {
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
+  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}"
 }
 
 OK
 
 {
   "argument": "null",
-  "duration": "0.064197426s",
+  "duration": "0.100000000s",
   "endTime": "2024-04-01T12:34:56.123456Z",
   "labels": {
     "cnrm-test": "true",
     "env": "test",
     "managed-by-cnrm": "true"
   },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
+  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/${executionId}",
   "result": "\"us-central1\"",
   "startTime": "2024-04-01T12:34:56.123456Z",
   "state": "SUCCEEDED",
   "status": {
     "currentSteps": [
       {
-        "routine": "main",
-        "step": "returnOutput"
+        "routine": "routine-normalized",
+        "step": "step-normalized"
       }
     ]
   },
-  "workflowRevisionId": "000001-383"
-}
-
----
-
-GRPC /google.cloud.workflows.executions.v1.Executions/GetExecution
-
-{
-  "name": "projects/${projectId}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2"
-}
-
-OK
-
-{
-  "argument": "null",
-  "duration": "0.064197426s",
-  "endTime": "2024-04-01T12:34:56.123456Z",
-  "labels": {
-    "cnrm-test": "true",
-    "env": "test",
-    "managed-by-cnrm": "true"
-  },
-  "name": "projects/${projectNumber}/locations/us-central1/workflows/workflow-${uniqueId}/executions/3796b580-5212-4a21-9b4b-f7cbdd7383a2",
-  "result": "\"us-central1\"",
-  "startTime": "2024-04-01T12:34:56.123456Z",
-  "state": "SUCCEEDED",
-  "status": {
-    "currentSteps": [
-      {
-        "routine": "main",
-        "step": "returnOutput"
-      }
-    ]
-  },
-  "workflowRevisionId": "000001-383"
+  "workflowRevisionId": "revision-id-placeholder"
 }
 
 ---
