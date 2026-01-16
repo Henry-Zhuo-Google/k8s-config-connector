@@ -18,13 +18,10 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
-	"os"
 
 	api "cloud.google.com/go/resourcemanager/apiv3"
 	pb "cloud.google.com/go/resourcemanager/apiv3/resourcemanagerpb"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
@@ -35,92 +32,88 @@ import (
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/controller/direct"
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/controller/direct/directbase"
 	"github.com/GoogleCloudPlatform/k8s-config-connector/pkg/controller/direct/registry"
+	// "github.com/GoogleCloudPlatform/k8s-config-connector/pkg/logging"
 )
 
 func init() {
-	registry.RegisterModel(krm.TagsTagKeyGVK, newTagKeyModel)
+	registry.RegisterModel(krm.TagsTagValueGVK, newTagValueModel)
 }
 
-func newTagKeyModel(ctx context.Context, config *config.ControllerConfig) (directbase.Model, error) {
-	return &tagKeyModel{config: config}, nil
+func newTagValueModel(ctx context.Context, config *config.ControllerConfig) (directbase.Model, error) {
+	return &tagValueModel{config: config}, nil
 }
 
-type tagKeyModel struct {
+type tagValueModel struct {
 	config *config.ControllerConfig
 }
 
 // model implements the Model interface.
-var _ directbase.Model = &tagKeyModel{}
+var _ directbase.Model = &tagValueModel{}
 
-type tagKeyAdapter struct {
+type tagValueAdapter struct {
 	parent string
 	shortName string
 
 	resourceID string // TODO Should we grab this from status instead?
 
-	desired *krm.TagsTagKey
-	actual  *pb.TagKey
+	desired *krm.TagsTagValue
+	actual  *pb.TagValue
 
 	*gcpClient
-	tagKeysClient *api.TagKeysClient
+	tagValuesClient *api.TagValuesClient
 }
 
 // adapter implements the Adapter interface.
-var _ directbase.Adapter = &tagKeyAdapter{}
+var _ directbase.Adapter = &tagValueAdapter{}
 
 // AdapterForObject implements the Model interface.
-func (m *tagKeyModel) AdapterForObject(ctx context.Context, reader client.Reader, u *unstructured.Unstructured) (directbase.Adapter, error) {
-	fmt.Printf("TagKey AdapterForObject")
-	t := time.Now()
-	fo, err := os.Create(fmt.Sprintf("tagkey_controller_loaded_%s.iml", t.Format(time.DateTime)))
-	defer func() {
-        if err := fo.Close(); err != nil {
-            panic(err)
-        }
-    }()
+func (m *tagValueModel) AdapterForObject(ctx context.Context, reader client.Reader, u *unstructured.Unstructured) (directbase.Adapter, error) {
+	fmt.Printf("TagValue AdapterForObject")
+	// log.Log.Info("TagValue AdapterForObject")
 	gcpClient, err := newGCPClient(ctx, m.config)
 	if err != nil {
 		return nil, err
 	}
 
-	tagKeysClient, err := gcpClient.newTagKeysClient(ctx)
+	tagValuesClient, err := gcpClient.newTagValuesClient(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	// TODO: Just fetch this object?
-	obj := &krm.TagsTagKey{}
+	obj := &krm.TagsTagValue{}
 	if err := runtime.DefaultUnstructuredConverter.FromUnstructured(u.Object, &obj); err != nil {
 		return nil, fmt.Errorf("error converting to %T: %w", obj, err)
 	}
 
-	// Before server gives resourceId, we can only identify using parent and shortName
+	// Before server gives resourceID, we can only identify using parent and shortName
+	// TODO is this necessary? We grab from obj.Spec on Create and never reference tagValueAdapter parent and shortname
 	shortName := direct.ValueOf(&obj.Spec.ShortName)
-	parent := direct.ValueOf(&obj.Spec.Parent)
+	parent := direct.ValueOf(&obj.Spec.ParentRef.External)
 
-	return &tagKeyAdapter{
+	return &tagValueAdapter{
 		parent:    parent,
 		shortName: shortName,
 		desired:       obj,
 		gcpClient:     gcpClient,
-		tagKeysClient: tagKeysClient,
+		tagValuesClient: tagValuesClient,
 	}, nil
 }
 
-func (m *tagKeyModel) AdapterForURL(ctx context.Context, url string) (directbase.Adapter, error) {
+func (m *tagValueModel) AdapterForURL(ctx context.Context, url string) (directbase.Adapter, error) {
 	return nil, nil
 }
 
 // Find implements the Adapter interface.
-func (a *tagKeyAdapter) Find(ctx context.Context) (bool, error) {
+func (a *tagValueAdapter) Find(ctx context.Context) (bool, error) {
 	if a.resourceID == "" {
 		return false, nil
 	}
 
-	req := &pb.GetTagKeyRequest{
+	req := &pb.GetTagValueRequest{
 		Name: a.fullyQualifiedName(),
 	}
-	tagKey, err := a.tagKeysClient.GetTagKey(ctx, req)
+	tagValue, err := a.tagValuesClient.GetTagValue(ctx, req)
 	if err != nil {
 		if direct.IsNotFound(err) {
 			return false, nil
@@ -128,33 +121,33 @@ func (a *tagKeyAdapter) Find(ctx context.Context) (bool, error) {
 		return false, err
 	}
 
-	a.actual = tagKey
+	a.actual = tagValue
 
 	return true, nil
 }
 
 // Delete implements the Adapter interface.
-func (a *tagKeyAdapter) Delete(ctx context.Context, deleteOp *directbase.DeleteOperation) (bool, error) {
+func (a *tagValueAdapter) Delete(ctx context.Context, deleteOp *directbase.DeleteOperation) (bool, error) {
 	// Already deleted
 	if a.resourceID == "" {
 		return false, nil
 	}
 
 	// TODO: Delete via status selfLink?
-	req := &pb.DeleteTagKeyRequest{
+	req := &pb.DeleteTagValueRequest{
 		Name: a.fullyQualifiedName(),
 	}
 
-	op, err := a.tagKeysClient.DeleteTagKey(ctx, req)
+	op, err := a.tagValuesClient.DeleteTagValue(ctx, req)
 	if err != nil {
 		if direct.IsNotFound(err) {
 			return false, nil
 		}
-		return false, fmt.Errorf("deleting tagKey %s: %w", a.fullyQualifiedName(), err)
+		return false, fmt.Errorf("deleting tagValue %s: %w", a.fullyQualifiedName(), err)
 	}
 
 	if _, err := op.Wait(ctx); err != nil {
-		return false, fmt.Errorf("tagKey deletion failed: %w", err)
+		return false, fmt.Errorf("tagValue deletion failed: %w", err)
 	}
 	// TODO: Do we need to check that it was deleted?
 
@@ -162,44 +155,36 @@ func (a *tagKeyAdapter) Delete(ctx context.Context, deleteOp *directbase.DeleteO
 }
 
 // Create implements the Adapter interface.
-func (a *tagKeyAdapter) Create(ctx context.Context, createOp *directbase.CreateOperation) error {
+func (a *tagValueAdapter) Create(ctx context.Context, createOp *directbase.CreateOperation) error {
 	u := createOp.GetUnstructured()
 
 	log := klog.FromContext(ctx)
-	klog.Infof("creating object %s", u)
+	log.Info("creating object", "u", u)
 	log.V(2).Info("creating object", "u", u)
 
-	// TODO: Should be ref
-	parent := a.desired.Spec.Parent
-	tagKey := &pb.TagKey{
+	// TODO: Is this the way to handle conversion of KCC ParentRef to pb Parent?
+	parent := a.desired.Spec.ParentRef.External
+	tagValue := &pb.TagValue{
 		Parent:      parent,
 		ShortName:   a.desired.Spec.ShortName,
 		Description: direct.ValueOf(a.desired.Spec.Description),
-		PurposeData: a.desired.Spec.PurposeData,
 	}
 
-	if s := direct.ValueOf(a.desired.Spec.Purpose); s != "" {
-		purpose, ok := pb.Purpose_value[s]
-		if !ok {
-			return fmt.Errorf("unknown purpose %q", s)
-		}
-		tagKey.Purpose = pb.Purpose(purpose)
-	}
-	req := &pb.CreateTagKeyRequest{
-		TagKey: tagKey,
+	req := &pb.CreateTagValueRequest{
+		TagValue: tagValue,
 	}
 
-	op, err := a.tagKeysClient.CreateTagKey(ctx, req)
+	op, err := a.tagValuesClient.CreateTagValue(ctx, req)
 	if err != nil {
-		return fmt.Errorf("creating tagKey: %w", err)
+		return fmt.Errorf("creating tagValue: %w", err)
 	}
 
 	created, err := op.Wait(ctx)
 	if err != nil {
-		return fmt.Errorf("tagKey creation failed: %w", err)
+		return fmt.Errorf("tagValue creation failed: %w", err)
 	}
 
-	log.V(2).Info("created tagkey", "tagkey", created)
+	log.V(2).Info("created tagvalue", "tagvalue", created)
 
 	resourceID := created.Name
 	a.resourceID = resourceID
@@ -207,15 +192,15 @@ func (a *tagKeyAdapter) Create(ctx context.Context, createOp *directbase.CreateO
 		return fmt.Errorf("setting spec.resourceID: %w", err)
 	}
 
-	status := &krm.TagsTagKeyStatus{}
-	if err := tagKeyStatusToKRM(created, status); err != nil {
+	status := &krm.TagsTagValueStatus{}
+	if err := tagValueStatusToKRM(created, status); err != nil {
 		return err
 	}
 
 	return setStatus(u, status)
 }
 
-func tagKeyStatusToKRM(in *pb.TagKey, out *krm.TagsTagKeyStatus) error {
+func tagValueStatusToKRM(in *pb.TagValue, out *krm.TagsTagValueStatus) error {
 	out.Name = &in.Name
 	out.NamespacedName = &in.NamespacedName
 	// TODO: Should be metav1.Time (?)
@@ -224,19 +209,11 @@ func tagKeyStatusToKRM(in *pb.TagKey, out *krm.TagsTagKeyStatus) error {
 	return nil
 }
 
-func timeToKRMString(t *timestamppb.Timestamp) *string {
-	if t == nil {
-		return nil
-	}
-	s := t.AsTime().Format(time.RFC3339Nano)
-	return &s
-}
-
 // Update implements the Adapter interface.
-func (a *tagKeyAdapter) Update(ctx context.Context, updateOp *directbase.UpdateOperation) error {
+func (a *tagValueAdapter) Update(ctx context.Context, updateOp *directbase.UpdateOperation) error {
 	// TODO: Skip updates at the higher level if no changes?
 	updateMask := &fieldmaskpb.FieldMask{}
-	update := &pb.TagKey{}
+	update := &pb.TagValue{}
 	update.Name = a.fullyQualifiedName()
 
 	// description is the only field that can be updated
@@ -248,18 +225,18 @@ func (a *tagKeyAdapter) Update(ctx context.Context, updateOp *directbase.UpdateO
 	// TODO: Where/how do we want to enforce immutability?
 
 	if len(updateMask.Paths) != 0 {
-		req := &pb.UpdateTagKeyRequest{
-			TagKey:     update,
+		req := &pb.UpdateTagValueRequest{
+			TagValue:     update,
 			UpdateMask: updateMask,
 		}
 
-		op, err := a.tagKeysClient.UpdateTagKey(ctx, req)
+		op, err := a.tagValuesClient.UpdateTagValue(ctx, req)
 		if err != nil {
 			return err
 		}
 
 		if _, err := op.Wait(ctx); err != nil {
-			return fmt.Errorf("tagKey update failed: %w", err)
+			return fmt.Errorf("tagValue update failed: %w", err)
 		}
 		// TODO: Do we need to check that the operation succeeeded?
 	}
@@ -268,24 +245,11 @@ func (a *tagKeyAdapter) Update(ctx context.Context, updateOp *directbase.UpdateO
 	return nil
 }
 
-func (a *tagKeyAdapter) Export(ctx context.Context) (*unstructured.Unstructured, error) {
+func (a *tagValueAdapter) Export(ctx context.Context) (*unstructured.Unstructured, error) {
 	return nil, nil
 }
 
-func (a *tagKeyAdapter) fullyQualifiedName() string {
-	// Remove the prefixed "organization/" or "project/"
+func (a *tagValueAdapter) fullyQualifiedName() string {
 	parentId := strings.Split(a.parent, "/")[1]
 	return fmt.Sprintf("%s/%s", parentId, a.shortName)
-}
-
-func setStatus(u *unstructured.Unstructured, typedStatus any) error {
-	// TODO: Just fetch this object?
-	status, err := runtime.DefaultUnstructuredConverter.ToUnstructured(typedStatus)
-	if err != nil {
-		return fmt.Errorf("error converting status to unstructured: %w", err)
-	}
-	// TODO: Merge to avoid overwriting conditions?
-	u.Object["status"] = status
-
-	return nil
 }
